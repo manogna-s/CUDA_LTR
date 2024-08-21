@@ -179,7 +179,7 @@ def Second_stage_classifier_alignment(model, train_loader):
             print(name)
             
     params = model.linear.parameters()
-    lr = 0.1
+    lr = 0.01
     momentum=0.9
     wd=2e-4
     optimizer_classifier_tune = torch.optim.SGD(params, lr=lr, weight_decay=wd, momentum=momentum)
@@ -187,7 +187,7 @@ def Second_stage_classifier_alignment(model, train_loader):
     # breakpoint()
     
     model.train()
-    for e in range(500):
+    for e in range(1000):
         
         samples = distrib.rsample().cuda().float()
         
@@ -235,6 +235,7 @@ def calculate_prototypes(model, train_loader):
             labels.append(targets_b.cpu())
             features_list.append(features.cpu())
     
+
     features = torch.cat(features_list, dim=0)
     labels = torch.cat(labels, dim=0)
     num_of_unique_classes = torch.unique(labels)
@@ -255,7 +256,7 @@ def calculate_prototypes(model, train_loader):
         embedding = F.normalize(embedding, p=2, dim=-1)
         feature_class_wise = embedding.numpy()
         cov = np.cov(feature_class_wise.T)
-        # cov_torch = torch.cov(embedding.T)
+        # cov_torch = torch.covariance(embedding.T)
         # radius.append(np.trace(cov)/64)
         
         print('class index', class_index, 'number of samples',data_index.shape[0])
@@ -266,6 +267,7 @@ def calculate_prototypes(model, train_loader):
         # cov_list.append(cov_torch)
         
     proto_list = torch.stack(prototype, dim=0)
+    proto_list = F.normalize(proto_list, p=2, dim=1)
     num_of_samples = torch.tensor(num_of_samples)
     class_id_most_samples = torch.argmax(num_of_samples)
     

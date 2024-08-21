@@ -1,1 +1,1 @@
-python3 main_ours.py --dataset cifar100 --imb_ratio 100 --num_max 500 --epochs 0 --gpu 0 --out ./logs --loss_fn bs --cuda --cutout
+python3 main_ours.py --dataset cifar100 --imb_ratio 100 --num_max 500 --epochs 0 --gpu 0 --out ./logs --loss_fn ce --cuda --cutout
