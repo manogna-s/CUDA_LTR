@@ -55,7 +55,7 @@ def parse_args(run_type = 'terminal'):
     elif run_type =='jupyter':
         args = parser.parse_args(args=[])
         
-    args.out = f'{args.out}{args.dataset}/{args.loss_fn}@N_{args.num_max}_ir_{args.imb_ratio}/'
+    args.out = f'{args.out}/{args.dataset}/{args.loss_fn}@N_{args.num_max}_ir_{args.imb_ratio}/'
     
     if args.gpu:
         os.environ['CUDA_DEVICE_ORDER'] = 'PCI_BUS_ID'

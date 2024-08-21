@@ -20,7 +20,8 @@ class NormedLinear(nn.Module):
 
     def forward(self, x):
         out = F.normalize(x, dim=1).mm(F.normalize(self.weight, dim=0))
-        return out
+        # out = F.linear(F.normalize(x, p=2, dim=1), F.normalize(self.weight, p=2, dim=1))
+        return out * 15
 
 class LambdaLayer(nn.Module):
 
@@ -69,13 +70,14 @@ class ResNet_s(nn.Module):
     def __init__(self, block, num_blocks, num_classes=10, use_norm=False):
         super(ResNet_s, self).__init__()
         self.in_planes = 16
-
+        use_norm = True
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)
         self.layer1 = self._make_layer(block, 16, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 32, num_blocks[1], stride=2)
         self.layer3 = self._make_layer(block, 64, num_blocks[2], stride=2)
         if use_norm:
+            # breakpoint()
             self.linear = NormedLinear(64, num_classes)
         else:
             self.linear = nn.Linear(64, num_classes)
@@ -102,6 +104,9 @@ class ResNet_s(nn.Module):
             return out, out1
         else:
             return out
+    
+    def forward_linear(self, x):
+        return self.linear(x)
 
 def resnet32(num_class, use_norm):
     return ResNet_s(BasicBlock, [5,5,5], num_class, use_norm=use_norm)

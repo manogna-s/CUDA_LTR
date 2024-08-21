@@ -174,7 +174,7 @@ def valid_normal(args, valloader, model, criterion, per_class_num, num_class=10,
         # Major, Neutral, Minor
         
         all_targets = np.array(valloader.dataset.targets)
-        pred_mask = (all_targets == all_preds).astype(np.float)
+        pred_mask = (all_targets == all_preds).astype(np.float64)
         for i in range(num_class):
             class_mask = np.where(all_targets == i)[0].reshape(-1)
             classwise_correct[i] += pred_mask[class_mask].sum()
@@ -258,7 +258,7 @@ def valid_bcl(args, valloader, model, criterion, per_class_num, num_class=10, mo
         # Major, Neutral, Minor
         
         all_targets = np.array(valloader.dataset.targets)
-        pred_mask = (all_targets == all_preds).astype(np.float)
+        pred_mask = (all_targets == all_preds).astype(np.float64)
         for i in range(num_class):
             class_mask = np.where(all_targets == i)[0].reshape(-1)
             classwise_correct[i] += pred_mask[class_mask].sum()

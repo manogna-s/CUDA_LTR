@@ -51,7 +51,7 @@ def GaussianBlur(img, v):
 def ResizeCrop(img, v):
     # assert 1 <= v <= 2
     width, height = img.size
-    enlarge = img.resize((int(width*v), int(height*v)), Image.ANTIALIAS)
+    enlarge = img.resize((int(width*v), int(height*v)), Image.LANCZOS)
     left = int(width*v)//2 - width//2
     right = int(width*v)//2 + width//2
     top = int(height*v)//2 - height//2
@@ -74,7 +74,7 @@ def Solarize(img, v):  # [0, 256]
     return PIL.ImageOps.solarize(img, v)
 
 def SolarizeAdd(img, addition=0, threshold=128):
-    img_np = np.array(img).astype(np.int)
+    img_np = np.array(img).astype(np.int32)
     img_np = img_np + addition
     img_np = np.clip(img_np, 0, 255)
     img_np = img_np.astype(np.uint8)
