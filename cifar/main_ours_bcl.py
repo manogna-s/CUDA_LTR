@@ -37,7 +37,7 @@ from main import seed_everything
 
 
 def main():
-    seed_everything(420)
+    seed_everything(0)
     
     global best_acc
 
@@ -174,7 +174,7 @@ def Second_stage_classifier_alignment(model, train_loader):
         if isinstance(m, nn.BatchNorm2d):
             m.eval()
 
-    for parameter in model.linear.parameters():
+    for parameter in model.fc.parameters():
         parameter.requires_grad = True
             
     print("trainable_parameters_list....")
@@ -182,21 +182,20 @@ def Second_stage_classifier_alignment(model, train_loader):
         if param.requires_grad:
             print(name)
             
-    params = model.linear.parameters()
-    lr = 0.01
+    params = model.fc.parameters()
+    lr = 0.0001
     momentum=0.9
     wd=2e-4
     optimizer_classifier_tune = torch.optim.SGD(params, lr=lr, weight_decay=wd, momentum=momentum)
-    args.logger(f'optimizer: {optimizer_classifier_tune}', level=1)
     
     # breakpoint()
     
     model.train()
     for e in range(1000):
         
-        samples = distrib.rsample().cuda().float()
+        # samples = distrib.rsample().cuda().float()
         
-        # samples = add_feature_distance(prototypes, Majority_class_features).cuda().float()
+        samples = add_feature_distance(prototypes, Majority_class_features).cuda().float()
         targets = torch.arange(num_of_classes).cuda()
         
         outputs = model.forward_linear(samples)
@@ -232,11 +231,13 @@ def calculate_prototypes(model, train_loader):
     with torch.no_grad():
         for batch_idx, data_tuple in enumerate(train_loader):
             inputs_b = data_tuple[0]
+            if isinstance(inputs_b, list):
+                inputs_b = inputs_b[0]
             targets_b = data_tuple[1]
             indexs = data_tuple[2]
             inputs_b = inputs_b.cuda(non_blocking=True)
             targets_b = targets_b.cuda(non_blocking=True)
-            _, features = model(inputs_b)
+            features = model.forward_features(inputs_b)
             labels.append(targets_b.cpu())
             features_list.append(features.cpu())
     
@@ -280,7 +281,7 @@ def calculate_prototypes(model, train_loader):
     print(cov_cls_ms_major.shape)
     cov_cls_ms = cov_cls_ms_major.repeat(num_of_classes, 1, 1)
     mean = proto_list
-    distrib = MultivariateNormal(loc=mean.double(), covariance_matrix=(1*cov_cls_ms).double())
+    distrib = MultivariateNormal(loc=mean.double(), covariance_matrix=cov_cls_ms.double())
  
     # breakpoint()
     

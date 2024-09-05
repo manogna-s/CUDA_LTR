@@ -121,3 +121,16 @@ class bcl_model(nn.Module):
         else:
             centers_logits = F.normalize(self.head_fc(self.fc.weight), dim=1)
         return feat_mlp, logits, centers_logits
+    
+    def forward_features(self, x):
+        feat = self.encoder(x)
+        feat_mlp = F.normalize(self.head(feat), dim=1)
+        logits = self.fc(feat)
+        if self.use_norm:
+            centers_logits = F.normalize(self.head_fc(self.fc.weight.T), dim=1)
+        else:
+            centers_logits = F.normalize(self.head_fc(self.fc.weight), dim=1)
+        return feat
+    
+    def forward_linear(self, x):
+        return self.fc(x)
